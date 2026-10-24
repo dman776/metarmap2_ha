@@ -47,6 +47,34 @@ async def test_states(hass: HomeAssistant, setup) -> None:
     assert hass.states.get("sensor.metarmap_last_metar_fetch").state != "unknown"
 
 
+async def test_visualizer_legend(hass: HomeAssistant, aioclient_mock, status) -> None:
+    legend = [
+        {"label": "VFR", "detail": "Green", "colors": ["#00ff00"], "effect": "solid", "period": None},
+        {"label": "Flight category missing", "detail": "Blinking red", "colors": ["#ff0000"],
+         "effect": "blink", "period": 2},
+    ]
+    status["visualizer"]["description"] = "Display the flight category (ie. VFR, MVFR, IFR, LIFR)."
+    status["visualizer"]["legend"] = legend
+    aioclient_mock.get(f"{BASE}/api/status", json=status)
+    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="192.168.1.50:80")
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    attrs = hass.states.get("select.metarmap_visualizer").attributes
+    assert attrs["exclusive"] is False
+    assert attrs["description"].startswith("Display the flight category")
+    assert attrs["legend"] == legend
+
+
+async def test_visualizer_without_legend(hass: HomeAssistant, setup) -> None:
+    """Maps older than 2.1 don't report a description or legend."""
+    attrs = hass.states.get("select.metarmap_visualizer").attributes
+    assert attrs["exclusive"] is False
+    assert "description" not in attrs
+    assert "legend" not in attrs
+
+
 async def test_airport_sensor_disabled_by_default(hass: HomeAssistant, setup) -> None:
     ent = er.async_get(hass).async_get("sensor.metarmap_kiah")
     assert ent is not None

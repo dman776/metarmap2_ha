@@ -33,7 +33,7 @@ The integration polls the map every 30 seconds.
 | Entity | Type | Map endpoint |
 |---|---|---|
 | LEDs | light (brightness) | `/brightness/<0-1>`; turning it off sets brightness to 0 |
-| Visualizer | select | `/visualizer/<n>` |
+| Visualizer | select | `/visualizer/<n>`; attributes `exclusive`, plus `description` and `legend` on map 2.1+ |
 | Next / Previous visualizer | button | `/visualizer/next`, `/visualizer/previous` |
 | Fetch METARs | button | `/fetch` |
 | Restart | button | `/restart` (auth) |
@@ -51,6 +51,26 @@ The integration polls the map every 30 seconds.
 Notes on brightness:
 - Brightness set from the LEDs light is not saved. The map's own schedule overrides it at dawn, sunrise, sunset and dusk.
 - To change the brightness each time period uses, set the Daytime, Dawn/dusk and Night brightness numbers. The map loads new levels at midnight or when it restarts.
+
+## Visualizer legend
+
+On map software 2.1 or later, the Visualizer select has two more attributes for the visualizer that's running:
+
+- `description`: one sentence on what it shows.
+- `legend`: what the LEDs mean, as a list of entries. Each entry has `label` (e.g. `VFR`), `detail` (e.g. `Green`), `colors` (CSS hex colors; two or more mean a gradient), `effect` (`solid`, `blink`, `pulse`, `flash`, `chase` or `off`) and `period` (seconds per blink or pulse, or `null`).
+
+These attributes aren't saved in the recorder history. To show the legend on a dashboard, use a Markdown card:
+
+```yaml
+type: markdown
+content: >
+  **{{ states('select.metarmap_visualizer') }}**:
+  {{ state_attr('select.metarmap_visualizer', 'description') }}
+
+  {% for item in state_attr('select.metarmap_visualizer', 'legend') or [] %}
+  - <font color="{{ item.colors[0] if item.colors else 'gray' }}">●</font> **{{ item.label }}**: {{ item.detail }}
+  {% endfor %}
+```
 
 ## Service: `metarmap.locate`
 

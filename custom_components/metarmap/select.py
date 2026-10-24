@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.select import SelectEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
@@ -42,6 +44,8 @@ class ActiveVisualizerSelect(_VisualizerSelect):
 
     _attr_translation_key = "visualizer"
     _attr_icon = "mdi:palette"
+    # static per visualizer; no need to store them in the recorder on every change
+    _unrecorded_attributes = frozenset({"description", "legend"})
 
     def __init__(self, coordinator) -> None:
         super().__init__(coordinator, "visualizer")
@@ -49,6 +53,16 @@ class ActiveVisualizerSelect(_VisualizerSelect):
     @property
     def current_option(self) -> str | None:
         return self._name(self.coordinator.data.get("visualizer", {}).get("active"))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Exclusive flag, plus the description and LED legend (map 2.1+)."""
+        vis = self.coordinator.data.get("visualizer", {})
+        attrs: dict[str, Any] = {"exclusive": vis.get("exclusive", False)}
+        for key in ("description", "legend"):
+            if key in vis:
+                attrs[key] = vis[key]
+        return attrs
 
     async def async_select_option(self, option: str) -> None:
         await self.coordinator.client.set_visualizer(self._index(option))
