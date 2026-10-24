@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 DOMAIN = "metarmap"
-MANUFACTURER = "METARMap2"
+MANUFACTURER = "Darryl Quinn"
 
 DEFAULT_PORT = 80
 DEFAULT_USERNAME = "metar"
