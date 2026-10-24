@@ -1,0 +1,94 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to METARMap",
+        "description": "Enter the address of your METARMap2 web server. The username and password come from the web_server section of the map's config.json.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate METARMap",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the map.",
+      "invalid_auth": "Invalid username or password.",
+      "unsupported": "The map's software is too old (no /api/status endpoint). Update metarmap2 on the map and restart it.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This map is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "entity": {
+    "light": {
+      "leds": { "name": "LEDs" }
+    },
+    "select": {
+      "visualizer": { "name": "Visualizer" },
+      "default_visualizer": { "name": "Default visualizer" }
+    },
+    "button": {
+      "visualizer_next": { "name": "Next visualizer" },
+      "visualizer_previous": { "name": "Previous visualizer" },
+      "fetch": { "name": "Fetch METARs" },
+      "update_software": { "name": "Update software" }
+    },
+    "switch": {
+      "lightning_animation": { "name": "Lightning animation" },
+      "display_locate_active": { "name": "Highlight active airport" },
+      "display_enabled": { "name": "Display screen (requires restart)" },
+      "auto_rotate": { "name": "Auto-rotate visualizers (requires restart)" },
+      "led_inittest": { "name": "Test pattern on startup" }
+    },
+    "number": {
+      "display_delay": { "name": "Display delay" },
+      "auto_rotate_delay": { "name": "Auto-rotate delay (requires restart)" },
+      "brightness_normal": { "name": "Daytime brightness" },
+      "brightness_dimmed": { "name": "Dawn/dusk brightness" },
+      "brightness_off": { "name": "Night brightness" }
+    },
+    "sensor": {
+      "airports_vfr": { "name": "VFR airports" },
+      "airports_mvfr": { "name": "MVFR airports" },
+      "airports_ifr": { "name": "IFR airports" },
+      "airports_lifr": { "name": "LIFR airports" },
+      "last_fetch": { "name": "Last METAR fetch" },
+      "missing_stations": { "name": "Missing stations" },
+      "sun_dawn": { "name": "Dawn" },
+      "sun_sunrise": { "name": "Sunrise" },
+      "sun_sunset": { "name": "Sunset" },
+      "sun_dusk": { "name": "Dusk" },
+      "airport": {
+        "name": "{code}",
+        "state": {
+          "VFR": "VFR",
+          "MVFR": "MVFR",
+          "IFR": "IFR",
+          "LIFR": "LIFR",
+          "UNKNOWN": "Unknown"
+        }
+      }
+    }
+  },
+  "services": {
+    "locate": {
+      "name": "Locate airport",
+      "description": "Pulse an airport's LED on the map. Ignored while an exclusive visualizer (Rainbow, Chase, Precipitation) is running.",
+      "fields": {
+        "airport": { "name": "Airport", "description": "ICAO code, e.g. KIAH." },
+        "pixel": { "name": "Pixel", "description": "LED index (alternative to airport)." }
+      }
+    }
+  }
+}

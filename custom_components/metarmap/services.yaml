@@ -1,0 +1,17 @@
+locate:
+  target:
+    entity:
+      integration: metarmap
+      domain: light
+  fields:
+    airport:
+      example: KIAH
+      selector:
+        text:
+    pixel:
+      example: 5
+      selector:
+        number:
+          min: 0
+          max: 1000
+          mode: box
