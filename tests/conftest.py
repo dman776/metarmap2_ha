@@ -42,6 +42,7 @@ STATUS = {
         "led.brightness.dimmed": 0.1,
         "led.brightness.off": 0.01,
     },
+    "display": {"enabled": True, "on": True},
     "suntimes": {
         "dawn": "2026-10-23T07:00:00-05:00",
         "sunrise": "2026-10-23T07:25:00-05:00",

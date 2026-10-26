@@ -85,6 +85,11 @@ class MetarMapClient:
         """Set LED brightness, 0.0 - 1.0 (not persisted; the sun schedule overrides it)."""
         await self._get(f"/brightness/{max(0.0, min(1.0, level)):.2f}")
 
+    async def set_display(self, on: bool) -> None:
+        """Turn the OLED screen on or off now (newer maps, with /display). Not saved: the screen is on again
+        after a restart. The map answers 409 if the screen is turned off in its config (display_screen.enabled)."""
+        await self._get(f"/display/{'on' if on else 'off'}")
+
     async def set_visualizer(self, index: int) -> None:
         await self._get(f"/visualizer/{int(index)}")
 

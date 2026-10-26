@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Connect to METARMap",
-        "description": "Enter the address of your METARMap2 web server. The username and password come from the web_server section of the map's config.json.",
+        "description": "Enter the address of your METARMap2 web server. The username and password are the map's web UI login: Config > Access on the map (or the web_server section of the map's config.json).",
         "data": {
           "host": "Host",
           "port": "Port",
@@ -47,7 +47,8 @@
     "switch": {
       "lightning_animation": { "name": "Lightning animation" },
       "display_locate_active": { "name": "Highlight active airport" },
-      "display_enabled": { "name": "Display screen (requires restart)" },
+      "display_enabled": { "name": "OLED screen enabled" },
+      "display": { "name": "OLED screen" },
       "auto_rotate": { "name": "Auto-rotate visualizers (requires restart)" },
       "led_inittest": { "name": "Test pattern on startup" }
     },

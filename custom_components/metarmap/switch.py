@@ -15,6 +15,7 @@ from .entity import MetarMapEntity
 PARALLEL_UPDATES = 1
 
 # key == config.json path; settings marked "restart" only apply after a restart
+# (display_screen.enabled applies right away on newer maps, with /display; older maps need a restart)
 SWITCHES: tuple[SwitchEntityDescription, ...] = (
     SwitchEntityDescription(
         key="lightning.animation",
@@ -55,11 +56,14 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities(
+    entities: list[SwitchEntity] = [
         MetarMapConfigSwitch(coordinator, d)
         for d in SWITCHES
         if d.key in coordinator.data.get("config", {})
-    )
+    ]
+    if "display" in coordinator.data:  # newer maps: the OLED screen can be turned on and off
+        entities.append(MetarMapDisplaySwitch(coordinator))
+    async_add_entities(entities)
 
 
 class MetarMapConfigSwitch(MetarMapEntity, SwitchEntity):
@@ -74,6 +78,39 @@ class MetarMapConfigSwitch(MetarMapEntity, SwitchEntity):
 
     async def _set(self, value: bool) -> None:
         await self.coordinator.client.edit_config(self.entity_description.key, value)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._set(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._set(False)
+
+
+class MetarMapDisplaySwitch(MetarMapEntity, SwitchEntity):
+    """The OLED screen on or off now, like the map's Home page switch. Not saved: the screen is on again when the
+    map restarts. Unavailable while the screen is turned off in the map's config ("OLED screen enabled")."""
+
+    _attr_translation_key = "display"
+    _attr_icon = "mdi:monitor"
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "display")
+
+    @property
+    def _display(self) -> dict[str, Any]:
+        return self.coordinator.data.get("display") or {}
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(self._display.get("enabled"))
+
+    @property
+    def is_on(self) -> bool | None:
+        return bool(self._display.get("on"))
+
+    async def _set(self, value: bool) -> None:
+        await self.coordinator.client.set_display(value)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_on(self, **kwargs: Any) -> None:

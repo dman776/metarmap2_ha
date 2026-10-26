@@ -101,6 +101,7 @@ AIRPORT_ATTRS = {
     "lightning": "lightning",
     "obsTime": "observation_time",
     "pixel": "pixel",
+    "text": "name",
 }
 
 
@@ -111,9 +112,9 @@ async def async_setup_entry(
 ) -> None:
     coordinator = entry.runtime_data
     entities: list[SensorEntity] = [MetarMapSensor(coordinator, d) for d in SENSORS]
-    entities.extend(
-        AirportSensor(coordinator, a["code"]) for a in coordinator.data.get("airports", [])
-    )
+    # one sensor per airport: the same airport can be on more than one LED (map 2.4+)
+    codes = dict.fromkeys(a["code"] for a in coordinator.data.get("airports", []))
+    entities.extend(AirportSensor(coordinator, code) for code in codes)
     async_add_entities(entities)
 
 
@@ -161,4 +162,7 @@ class AirportSensor(MetarMapEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self._info
-        return {name: info.get(src) for src, name in AIRPORT_ATTRS.items()}
+        attrs = {name: info.get(src) for src, name in AIRPORT_ATTRS.items()}
+        # every LED showing this airport (pixel is the first)
+        attrs["pixels"] = [a["pixel"] for a in self.coordinator.data.get("airports", []) if a["code"] == self._code]
+        return attrs

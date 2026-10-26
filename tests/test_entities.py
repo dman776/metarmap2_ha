@@ -154,3 +154,58 @@ async def test_locate(hass: HomeAssistant, setup, aioclient_mock) -> None:
 async def test_unload(hass: HomeAssistant, setup) -> None:
     assert await hass.config_entries.async_unload(setup.entry_id)
     assert setup.state is ConfigEntryState.NOT_LOADED
+
+
+async def test_oled_screen_switch(hass: HomeAssistant, setup, aioclient_mock) -> None:
+    """On or off now, like the map's Home page switch (not saved)."""
+    assert hass.states.get("switch.metarmap_oled_screen").state == "on"
+    aioclient_mock.get(f"{BASE}/display/off", text="ok")
+    aioclient_mock.get(f"{BASE}/display/on", text="ok")
+    await hass.services.async_call(
+        "switch", "turn_off", {"entity_id": "switch.metarmap_oled_screen"}, blocking=True
+    )
+    assert _called(aioclient_mock, "/display/off")
+    await hass.services.async_call(
+        "switch", "turn_on", {"entity_id": "switch.metarmap_oled_screen"}, blocking=True
+    )
+    assert _called(aioclient_mock, "/display/on")
+    # the saved setting is its own switch
+    assert hass.states.get("switch.metarmap_oled_screen_enabled").state == "on"
+
+
+async def test_oled_screen_unavailable_when_disabled(hass: HomeAssistant, aioclient_mock, status) -> None:
+    status["display"] = {"enabled": False, "on": False}
+    aioclient_mock.get(f"{BASE}/api/status", json=status)
+    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="192.168.1.50:80")
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get("switch.metarmap_oled_screen").state == "unavailable"
+
+
+async def test_no_oled_screen_switch_on_older_maps(hass: HomeAssistant, aioclient_mock, status) -> None:
+    del status["display"]
+    aioclient_mock.get(f"{BASE}/api/status", json=status)
+    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="192.168.1.50:80")
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get("switch.metarmap_oled_screen") is None
+    assert hass.states.get("switch.metarmap_oled_screen_enabled") is not None
+
+
+async def test_an_airport_on_two_leds_gets_one_sensor(hass: HomeAssistant, aioclient_mock, status) -> None:
+    status["airports"].append({**status["airports"][0], "pixel": 5})  # KIAH on LEDs 0 and 5
+    aioclient_mock.get(f"{BASE}/api/status", json=status)
+    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="192.168.1.50:80")
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    registry = er.async_get(hass)
+    kiah = [e for e in registry.entities.values() if e.unique_id.endswith("_airport_kiah")]
+    assert len(kiah) == 1
+    registry.async_update_entity(kiah[0].entity_id, disabled_by=None)
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    attrs = hass.states.get(kiah[0].entity_id).attributes
+    assert attrs["pixels"] == [0, 5] and attrs["pixel"] == 0 and attrs["name"] == "IAH"

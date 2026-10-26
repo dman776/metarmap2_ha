@@ -23,8 +23,8 @@ Go to **Settings → Devices & services → Add integration → METARMap** and e
 |----------|---------|-----------------------------------------------|
 | Host     |         | IP address or hostname of the Pi              |
 | Port     | `80`    | `web_server.port` in `config.json`            |
-| Username | `metar` | `web_server.user` in `config.json`            |
-| Password | `map`   | `web_server.password` in `config.json`        |
+| Username | `metar` | the map's web UI login: **Config > Access** on the map, or `web_server.user` in `config.json` |
+| Password | `map`   | the same login's password (`web_server.password`) |
 
 The integration polls the map every 30 seconds.
 
@@ -39,14 +39,17 @@ The integration polls the map every 30 seconds.
 | Restart | button | `/restart` (auth) |
 | Update software | button (disabled by default) | `/update` (auth); press Restart afterwards |
 | Default visualizer | select (config) | `config.json` `visualizer.active` |
-| Lightning animation, Highlight active airport, Display screen\*, Auto-rotate visualizers\*, Test pattern on startup | switch (config) | `/config/edit/...` (auth) |
+| OLED screen | switch | `/display/on`, `/display/off`: the screen on or off now, like the switch on the map's Home page. Not saved: it's on again when the map restarts. Unavailable while OLED screen enabled is off. Only on newer maps (with `display` in `/api/status`) |
+| Lightning animation, Highlight active airport, OLED screen enabled†, Auto-rotate visualizers\*, Test pattern on startup | switch (config) | `/config/edit/...` (auth) |
 | Display delay, Auto-rotate delay\*, Daytime / Dawn-dusk / Night brightness | number (config) | `/config/edit/...` (auth) |
 | VFR / MVFR / IFR / LIFR airports | sensor | count of airports in each category |
 | Last METAR fetch, Missing stations | sensor (diagnostic) | |
 | Dawn / Sunrise / Sunset / Dusk | sensor (diagnostic, disabled by default) | the map's dimming schedule |
-| One sensor per airport (e.g. `sensor.metarmap_kiah`) | sensor (disabled by default) | flight category; the raw METAR, wind, visibility, temperature and so on are attributes |
+| One sensor per airport (e.g. `sensor.metarmap_kiah`) | sensor (disabled by default) | flight category; the raw METAR, wind, visibility, temperature, `name` and so on are attributes. An airport on more than one LED has one sensor; `pixels` lists its LEDs |
 
 \* These settings only take effect after the map restarts.
+
+† The saved setting for whether the map has an OLED screen. On newer maps it applies right away; older maps need a restart.
 
 Notes on brightness:
 - Brightness set from the LEDs light is not saved. The map's own schedule overrides it at dawn, sunrise, sunset and dusk.
@@ -57,7 +60,7 @@ Notes on brightness:
 On map software 2.1 or later, the Visualizer select has two more attributes for the visualizer that's running:
 
 - `description`: one sentence on what it shows.
-- `legend`: what the LEDs mean, as a list of entries. Each entry has `label` (e.g. `VFR`), `detail` (e.g. `Green`), `colors` (CSS hex colors; two or more mean a gradient), `effect` (`solid`, `blink`, `pulse`, `flash`, `chase` or `off`) and `period` (seconds per blink or pulse, or `null`).
+- `legend`: what the LEDs mean, as a list of entries. Each entry has `label` (e.g. `VFR`), `detail` (e.g. `Green`), `colors` (CSS hex colors; two or more mean a gradient, except for `flash` and `alternate`), `effect` (`solid`, `blink`, `pulse`, `flash`, `alternate` (the two colors in turn), `chase` or `off`), `period` (seconds per blink or pulse, or `null`) and, on newer maps, `low` (a pulse's dimmest point, e.g. `0.3`, or `null`).
 
 These attributes aren't saved in the recorder history. To show the legend on a dashboard, use a Markdown card:
 
