@@ -14,8 +14,7 @@ from custom_components.metarmap.const import DOMAIN
 from .conftest import BASE, ENTRY_DATA
 
 
-@pytest.fixture
-async def setup(hass: HomeAssistant, aioclient_mock, status):
+async def _set_up(hass: HomeAssistant, aioclient_mock, status):
     aioclient_mock.get(f"{BASE}/api/status", json=status)
     entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="192.168.1.50:80")
     entry.add_to_hass(hass)
@@ -23,6 +22,12 @@ async def setup(hass: HomeAssistant, aioclient_mock, status):
     await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.LOADED
     return entry
+
+
+@pytest.fixture
+async def setup(hass: HomeAssistant, aioclient_mock, status):
+    """A map from before visualizer ids: visualizers by number only."""
+    return await _set_up(hass, aioclient_mock, status)
 
 
 def _called(aioclient_mock, path: str) -> bool:
@@ -209,3 +214,36 @@ async def test_an_airport_on_two_leds_gets_one_sensor(hass: HomeAssistant, aiocl
     await hass.async_block_till_done()
     attrs = hass.states.get(kiah[0].entity_id).attributes
     assert attrs["pixels"] == [0, 5] and attrs["pixel"] == 0 and attrs["name"] == "IAH"
+
+
+IDS = ("flight_category", "wind", "rainbow")
+
+
+async def test_visualizers_by_id_on_a_newer_map(hass: HomeAssistant, aioclient_mock, status) -> None:
+    """Newer maps give each visualizer an id and save visualizer.active as one; the selects use the ids."""
+    for vis, vid in zip(status["visualizers"], IDS):
+        vis["id"] = vid
+    status["visualizer"].update(active=1, id="wind", name="Wind")
+    status["config"]["visualizer.active"] = "rainbow"
+    await _set_up(hass, aioclient_mock, status)
+
+    assert hass.states.get("select.metarmap_visualizer").state == "Wind"
+    assert hass.states.get("select.metarmap_default_visualizer").state == "Rainbow"
+
+    for path in ("/visualizer/flight_category", "/config/edit/visualizer.active/wind"):
+        aioclient_mock.get(f"{BASE}{path}", text="ok")
+    await hass.services.async_call(
+        "select", "select_option",
+        {"entity_id": "select.metarmap_visualizer", "option": "Flight Category"}, blocking=True,
+    )
+    assert _called(aioclient_mock, "/visualizer/flight_category")
+    await hass.services.async_call(
+        "select", "select_option",
+        {"entity_id": "select.metarmap_default_visualizer", "option": "Wind"}, blocking=True,
+    )
+    assert _called(aioclient_mock, "/config/edit/visualizer.active/wind")
+
+
+async def test_default_visualizer_on_an_older_map(hass: HomeAssistant, setup) -> None:
+    """Before ids, visualizer.active is a number."""
+    assert hass.states.get("select.metarmap_default_visualizer").state == "Flight Category"

@@ -27,16 +27,29 @@ async def async_setup_entry(
 
 
 class _VisualizerSelect(MetarMapEntity, SelectEntity):
+    """
+    Newer maps give each visualizer an id, which never changes, and save visualizer.active as it; older
+    ones only have the visualizer's number. Both are sent the way the map knows them.
+    """
+
     @property
     def options(self) -> list[str]:
         return self.coordinator.visualizer_names
 
-    def _index(self, option: str) -> int:
-        return self.options.index(option)
+    def _key(self, option: str) -> str | int:
+        """The id (or, on an older map, the number) of the visualizer named `option`."""
+        number = self.options.index(option)
+        vis = self.coordinator.data.get("visualizers", [])[number]
+        return vis.get("id", vis.get("index", number))
 
-    def _name(self, index: int | None) -> str | None:
-        names = self.options
-        return names[index] if index is not None and 0 <= index < len(names) else None
+    def _name(self, key: str | int | None) -> str | None:
+        """The name of the visualizer with id or number `key`."""
+        if key is None:
+            return None
+        for number, vis in enumerate(self.coordinator.data.get("visualizers", [])):
+            if key == vis.get("id") or (isinstance(key, int) and key == vis.get("index", number)):
+                return vis["name"]
+        return None
 
 
 class ActiveVisualizerSelect(_VisualizerSelect):
@@ -52,7 +65,8 @@ class ActiveVisualizerSelect(_VisualizerSelect):
 
     @property
     def current_option(self) -> str | None:
-        return self._name(self.coordinator.data.get("visualizer", {}).get("active"))
+        vis = self.coordinator.data.get("visualizer", {})
+        return self._name(vis.get("id", vis.get("active")))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -65,7 +79,7 @@ class ActiveVisualizerSelect(_VisualizerSelect):
         return attrs
 
     async def async_select_option(self, option: str) -> None:
-        await self.coordinator.client.set_visualizer(self._index(option))
+        await self.coordinator.client.set_visualizer(self._key(option))
         await self.coordinator.async_request_refresh()
 
 
@@ -84,5 +98,5 @@ class DefaultVisualizerSelect(_VisualizerSelect):
         return self._name(self.config.get("visualizer.active"))
 
     async def async_select_option(self, option: str) -> None:
-        await self.coordinator.client.edit_config("visualizer.active", self._index(option))
+        await self.coordinator.client.edit_config("visualizer.active", self._key(option))
         await self.coordinator.async_request_refresh()

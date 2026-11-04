@@ -90,8 +90,9 @@ class MetarMapClient:
         after a restart. The map answers 409 if the screen is turned off in its config (display_screen.enabled)."""
         await self._get(f"/display/{'on' if on else 'off'}")
 
-    async def set_visualizer(self, index: int) -> None:
-        await self._get(f"/visualizer/{int(index)}")
+    async def set_visualizer(self, key: str | int) -> None:
+        """By id ("wind_direction", maps with visualizer ids) or by number (3, any map)."""
+        await self._get(f"/visualizer/{quote(str(key), safe='')}")
 
     async def next_visualizer(self) -> None:
         await self._get("/visualizer/next")
