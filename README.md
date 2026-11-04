@@ -33,12 +33,12 @@ The integration polls the map every 30 seconds.
 | Entity | Type | Map endpoint |
 |---|---|---|
 | LEDs | light (brightness) | `/brightness/<0-1>`; turning it off sets brightness to 0 |
-| Visualizer | select | `/visualizer/<n>`; attributes `exclusive`, plus `description` and `legend` on map 2.1+ |
+| Visualizer | select | `/visualizer/<id>` (by number on a map from before visualizer ids); attributes `exclusive`, plus `description` and `legend` on map 2.1+ |
 | Next / Previous visualizer | button | `/visualizer/next`, `/visualizer/previous` |
 | Fetch METARs | button | `/fetch` |
 | Restart | button | `/restart` (auth) |
 | Update software | button (disabled by default) | `/update` (auth); press Restart afterwards |
-| Default visualizer | select (config) | `config.json` `visualizer.active` |
+| Default visualizer | select (config) | `config.json` `visualizer.active` (an id, or a number on a map from before visualizer ids) |
 | OLED screen | switch | `/display/on`, `/display/off`: the screen on or off now, like the switch on the map's Home page. Not saved: it's on again when the map restarts. Unavailable while OLED screen enabled is off. Only on newer maps (with `display` in `/api/status`) |
 | Lightning animation, Highlight active airport, OLED screen enabled†, Auto-rotate visualizers\*, Test pattern on startup | switch (config) | `/config/edit/...` (auth) |
 | Display delay, Auto-rotate delay\*, Daytime / Dawn-dusk / Night brightness | number (config) | `/config/edit/...` (auth) |
