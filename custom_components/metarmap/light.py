@@ -45,7 +45,7 @@ async def async_setup_entry(
 
 
 class MetarMapLight(MetarMapEntity, LightEntity):
-    """The map's LED strip. Brightness only; colours belong to the visualizer."""
+    """The Chart's LED strip. Brightness only; colours belong to the visualizer."""
 
     _attr_translation_key = "leds"
     _attr_color_mode = ColorMode.BRIGHTNESS

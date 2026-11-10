@@ -1,4 +1,4 @@
-"""Constants for the METARMap integration."""
+"""Constants for the MetarMap2 integration."""
 
 from datetime import timedelta
 

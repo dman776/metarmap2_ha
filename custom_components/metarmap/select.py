@@ -70,7 +70,7 @@ class ActiveVisualizerSelect(_VisualizerSelect):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Exclusive flag, plus the description and LED legend (map 2.1+)."""
+        """Exclusive flag, plus the description and pixel legend (Chart software 2.1+)."""
         vis = self.coordinator.data.get("visualizer", {})
         attrs: dict[str, Any] = {"exclusive": vis.get("exclusive", False)}
         for key in ("description", "legend"):

@@ -30,7 +30,7 @@ class MetarMapButtonDescription(ButtonEntityDescription):
 
 
 async def _update(client: MetarMapClient) -> None:
-    _LOGGER.info("METARMap software update output: %s", await client.update_software())
+    _LOGGER.info("MetarMap2 software update output: %s", await client.update_software())
 
 
 BUTTONS: tuple[MetarMapButtonDescription, ...] = (

@@ -1,4 +1,4 @@
-"""Sensors for METARMap."""
+"""Sensors for MetarMap2."""
 
 from __future__ import annotations
 
@@ -112,7 +112,7 @@ async def async_setup_entry(
 ) -> None:
     coordinator = entry.runtime_data
     entities: list[SensorEntity] = [MetarMapSensor(coordinator, d) for d in SENSORS]
-    # one sensor per airport: the same airport can be on more than one LED (map 2.4+)
+    # one sensor per airport: the same airport can be on more than one pixel (Chart software 2.4+)
     codes = dict.fromkeys(a["code"] for a in coordinator.data.get("airports", []))
     entities.extend(AirportSensor(coordinator, code) for code in codes)
     async_add_entities(entities)
@@ -163,6 +163,6 @@ class AirportSensor(MetarMapEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self._info
         attrs = {name: info.get(src) for src, name in AIRPORT_ATTRS.items()}
-        # every LED showing this airport (pixel is the first)
+        # every pixel showing this airport (pixel is the first)
         attrs["pixels"] = [a["pixel"] for a in self.coordinator.data.get("airports", []) if a["code"] == self._code]
         return attrs

@@ -1,1 +1,1 @@
-"""Tests for the METARMap integration."""
+"""Tests for the MetarMap2 integration."""
