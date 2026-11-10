@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to METARMap",
-        "description": "Enter the address of your METARMap2 web server. The username and password are the map's web UI login: Config > Access on the map (or the web_server section of the map's config.json).",
+        "title": "Connect to MetarMap2",
+        "description": "Enter the address of your MetarMap2 web server. The username and password are the Web login: Config > System > Access on the Chart (or the web_server section of the Chart's config.json).",
         "data": {
           "host": "Host",
           "port": "Port",
@@ -12,7 +12,7 @@
         }
       },
       "reauth_confirm": {
-        "title": "Re-authenticate METARMap",
+        "title": "Re-authenticate MetarMap2",
         "data": {
           "username": "Username",
           "password": "Password"
@@ -22,11 +22,11 @@
     "error": {
       "cannot_connect": "Failed to connect to the map.",
       "invalid_auth": "Invalid username or password.",
-      "unsupported": "The map's software is too old (no /api/status endpoint). Update metarmap2 on the map and restart it.",
+      "unsupported": "The Chart's software is too old (no /api/status endpoint). Update MetarMap2 on the Chart and restart it.",
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This map is already configured.",
+      "already_configured": "This Chart is already configured.",
       "reauth_successful": "Re-authentication was successful."
     }
   },
@@ -85,10 +85,10 @@
   "services": {
     "locate": {
       "name": "Locate airport",
-      "description": "Pulse an airport's LED on the map. Ignored while an exclusive visualizer (Rainbow, Chase, Precipitation) is running.",
+      "description": "Pulse an airport's pixel on the Chart. Ignored while an exclusive visualizer (Rainbow, Chase, Precipitation) is running.",
       "fields": {
         "airport": { "name": "Airport", "description": "ICAO code, e.g. KIAH." },
-        "pixel": { "name": "Pixel", "description": "LED index (alternative to airport)." }
+        "pixel": { "name": "Pixel", "description": "Pixel index (alternative to airport)." }
       }
     }
   }

@@ -1,4 +1,4 @@
-"""Fixtures for METARMap tests."""
+"""Fixtures for MetarMap2 tests."""
 
 from __future__ import annotations
 

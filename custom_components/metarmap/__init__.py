@@ -1,4 +1,4 @@
-"""The METARMap integration."""
+"""The MetarMap2 integration."""
 
 from __future__ import annotations
 

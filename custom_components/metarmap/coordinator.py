@@ -1,4 +1,4 @@
-"""Data update coordinator for METARMap."""
+"""Data update coordinator for MetarMap2."""
 
 from __future__ import annotations
 

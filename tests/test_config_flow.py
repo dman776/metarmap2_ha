@@ -28,7 +28,7 @@ async def test_user_flow_success(hass: HomeAssistant, aioclient_mock, status) ->
     result = await hass.config_entries.flow.async_configure(result["flow_id"], ENTRY_DATA)
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"] == ENTRY_DATA
-    assert result["title"] == "METARMap (192.168.1.50)"
+    assert result["title"] == "MetarMap2 (192.168.1.50)"
 
 
 async def test_user_flow_errors(hass: HomeAssistant, aioclient_mock, status) -> None:

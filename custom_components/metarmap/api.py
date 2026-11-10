@@ -1,4 +1,4 @@
-"""Async client for the METARMap2 web server REST API."""
+"""Async client for the MetarMap2 web server REST API."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class MetarMapUnsupportedError(MetarMapError):
 
 
 class MetarMapClient:
-    """Thin wrapper around the METARMap2 bottle web server."""
+    """Thin wrapper around the MetarMap2 bottle web server."""
 
     def __init__(
         self,
@@ -82,7 +82,7 @@ class MetarMapClient:
         await self._get("/config", auth=True)
 
     async def set_brightness(self, level: float) -> None:
-        """Set LED brightness, 0.0 - 1.0 (not persisted; the sun schedule overrides it)."""
+        """Set the Chart's brightness, 0.0 - 1.0 (not persisted; the sun schedule overrides it)."""
         await self._get(f"/brightness/{max(0.0, min(1.0, level)):.2f}")
 
     async def set_display(self, on: bool) -> None:
@@ -101,7 +101,7 @@ class MetarMapClient:
         await self._get("/visualizer/previous")
 
     async def locate(self, pixel: int) -> None:
-        """Pulse a single pixel (ignored by exclusive visualizers)."""
+        """Pulse a single airport pixel (ignored by exclusive visualizers)."""
         await self._get(f"/locate/{int(pixel)}")
 
     async def fetch_metars(self) -> None:

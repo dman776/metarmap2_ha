@@ -1,4 +1,4 @@
-"""Base entity for METARMap."""
+"""Base entity for MetarMap2."""
 
 from __future__ import annotations
 
@@ -21,9 +21,9 @@ class MetarMapEntity(CoordinatorEntity[MetarMapCoordinator]):
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name="METARMap",
+            name="MetarMap2",
             manufacturer=MANUFACTURER,
-            model="METAR Map",
+            model="MetarMap2 Chart",
             sw_version=coordinator.data.get("version"),
             configuration_url=f"http://{entry.data[CONF_HOST]}:{entry.data[CONF_PORT]}/",
         )

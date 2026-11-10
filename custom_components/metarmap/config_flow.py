@@ -1,4 +1,4 @@
-"""Config flow for METARMap."""
+"""Config flow for MetarMap2."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ USER_SCHEMA = vol.Schema(
 
 
 class MetarMapConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for METARMap."""
+    """Handle a config flow for MetarMap2."""
 
     VERSION = 1
 
@@ -58,7 +58,7 @@ class MetarMapConfigFlow(ConfigFlow, domain=DOMAIN):
         except MetarMapConnectionError:
             return {"base": "cannot_connect"}, {}
         except MetarMapError:
-            _LOGGER.exception("Unexpected error validating METARMap")
+            _LOGGER.exception("Unexpected error validating MetarMap2")
             return {"base": "unknown"}, {}
         return {}, status
 
@@ -72,7 +72,7 @@ class MetarMapConfigFlow(ConfigFlow, domain=DOMAIN):
             errors, _ = await self._validate(user_input)
             if not errors:
                 return self.async_create_entry(
-                    title=f"METARMap ({user_input[CONF_HOST]})", data=user_input
+                    title=f"MetarMap2 ({user_input[CONF_HOST]})", data=user_input
                 )
         return self.async_show_form(
             step_id="user",
