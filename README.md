@@ -91,7 +91,7 @@ data:
   airport: KIAH
 ```
 
-The Chart ignores this while an exclusive visualizer (Rainbow, Chase, Precipitation) is running.
+The Chart ignores this while an exclusive visualizer (Rainbow or Chase) is running.
 
 ## Development
 
