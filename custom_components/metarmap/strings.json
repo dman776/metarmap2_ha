@@ -85,7 +85,7 @@
   "services": {
     "locate": {
       "name": "Locate airport",
-      "description": "Pulse an airport's pixel on the Chart. Ignored while an exclusive visualizer (Rainbow, Chase, Precipitation) is running.",
+      "description": "Pulse an airport's pixel on the Chart. Ignored while an exclusive visualizer (Rainbow or Chase) is running.",
       "fields": {
         "airport": { "name": "Airport", "description": "ICAO code, e.g. KIAH." },
         "pixel": { "name": "Pixel", "description": "Pixel index (alternative to airport)." }
