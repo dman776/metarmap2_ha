@@ -128,10 +128,16 @@ async def test_fetch_busy_is_not_an_error(
     hass: HomeAssistant, setup, aioclient_mock, caplog
 ) -> None:
     aioclient_mock.get(f"{BASE}/fetch", status=503)
+    polls = sum(str(url).endswith("/api/status") for _, url, _, _ in aioclient_mock.mock_calls)
     await hass.services.async_call(
         "button", "press", {"entity_id": "button.metarmap2_fetch_metars"}, blocking=True
     )
+    await hass.async_block_till_done()
     assert "a fetch is already running" in caplog.text
+    # the press still refreshes the coordinator
+    assert (
+        sum(str(url).endswith("/api/status") for _, url, _, _ in aioclient_mock.mock_calls) > polls
+    )
 
 
 async def test_fetch_error_still_raises(hass: HomeAssistant, setup, aioclient_mock) -> None:
