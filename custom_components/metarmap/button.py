@@ -15,7 +15,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .api import MetarMapClient
+from .api import MetarMapBusyError, MetarMapClient
 from .coordinator import MetarMapConfigEntry
 from .entity import MetarMapEntity
 
@@ -31,6 +31,14 @@ class MetarMapButtonDescription(ButtonEntityDescription):
 
 async def _update(client: MetarMapClient) -> None:
     _LOGGER.info("MetarMap2 software update output: %s", await client.update_software())
+
+
+async def _fetch(client: MetarMapClient) -> None:
+    try:
+        await client.fetch_metars()
+    except MetarMapBusyError:
+        # not a failure: the map is already doing what the press asked for
+        _LOGGER.info("MetarMap2: a fetch is already running")
 
 
 BUTTONS: tuple[MetarMapButtonDescription, ...] = (
@@ -50,7 +58,7 @@ BUTTONS: tuple[MetarMapButtonDescription, ...] = (
         key="fetch",
         translation_key="fetch",
         icon="mdi:cloud-download",
-        press_fn=lambda c: c.fetch_metars(),
+        press_fn=_fetch,
     ),
     MetarMapButtonDescription(
         key="restart",

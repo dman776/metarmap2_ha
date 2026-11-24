@@ -39,7 +39,7 @@ The device is named "MetarMap2" (model "MetarMap2 Chart"), so entity IDs look li
 | LEDs | light (brightness) | `/brightness/<0-1>`; turning it off sets brightness to 0 |
 | Visualizer | select | `/visualizer/<id>` (by number on a Chart from before visualizer ids); attributes `exclusive`, plus `description` and `legend` on Chart software 2.1+ |
 | Next / Previous visualizer | button | `/visualizer/next`, `/visualizer/previous` |
-| Fetch METARs | button | `/fetch` |
+| Fetch METARs | button | `/fetch` (a fetch already running is not an error) |
 | Restart | button | `/restart` (auth) |
 | Update software | button (disabled by default) | `/update` (auth); press Restart afterwards |
 | Default visualizer | select (config) | `config.json` `visualizer.active` (an id, or a number on a Chart from before visualizer ids) |

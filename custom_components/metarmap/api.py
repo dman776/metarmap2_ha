@@ -9,8 +9,9 @@ from urllib.parse import quote
 import aiohttp
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
-# /fetch blocks on the device until aviationweather.gov responds (30s timeout there)
-FETCH_TIMEOUT = aiohttp.ClientTimeout(total=60)
+# /fetch waits up to 20s for a fetch that is already running (then answers 503),
+# and a fetch itself can be slow on a slow Pi
+FETCH_TIMEOUT = aiohttp.ClientTimeout(total=100)
 
 
 class MetarMapError(Exception):
@@ -27,6 +28,10 @@ class MetarMapAuthError(MetarMapError):
 
 class MetarMapUnsupportedError(MetarMapError):
     """The map's software does not provide /api/status (needs updating)."""
+
+
+class MetarMapBusyError(MetarMapError):
+    """The map answered 503 to /fetch: a fetch is already running."""
 
 
 class MetarMapClient:
@@ -65,6 +70,8 @@ class MetarMapClient:
             raise MetarMapAuthError("Invalid username or password")
         if resp.status == 404 and path == "/api/status":
             raise MetarMapUnsupportedError("Map software does not expose /api/status")
+        if resp.status == 503 and path == "/fetch":
+            raise MetarMapBusyError("A fetch is already running")
         if resp.status >= 400:
             raise MetarMapError(f"{path} returned HTTP {resp.status}")
         return resp

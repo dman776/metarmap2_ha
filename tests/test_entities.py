@@ -9,6 +9,7 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.metarmap.api import MetarMapError
 from custom_components.metarmap.const import DOMAIN
 
 from .conftest import BASE, ENTRY_DATA
@@ -121,6 +122,30 @@ async def test_select_and_buttons(hass: HomeAssistant, setup, aioclient_mock) ->
         "button", "press", {"entity_id": "button.metarmap2_fetch_metars"}, blocking=True
     )
     assert _called(aioclient_mock, "/fetch")
+
+
+async def test_fetch_busy_is_not_an_error(
+    hass: HomeAssistant, setup, aioclient_mock, caplog
+) -> None:
+    aioclient_mock.get(f"{BASE}/fetch", status=503)
+    polls = sum(str(url).endswith("/api/status") for _, url, _, _ in aioclient_mock.mock_calls)
+    await hass.services.async_call(
+        "button", "press", {"entity_id": "button.metarmap2_fetch_metars"}, blocking=True
+    )
+    await hass.async_block_till_done()
+    assert "a fetch is already running" in caplog.text
+    # the press still refreshes the coordinator
+    assert (
+        sum(str(url).endswith("/api/status") for _, url, _, _ in aioclient_mock.mock_calls) > polls
+    )
+
+
+async def test_fetch_error_still_raises(hass: HomeAssistant, setup, aioclient_mock) -> None:
+    aioclient_mock.get(f"{BASE}/fetch", status=500)
+    with pytest.raises(MetarMapError):
+        await hass.services.async_call(
+            "button", "press", {"entity_id": "button.metarmap2_fetch_metars"}, blocking=True
+        )
 
 
 async def test_config_entities(hass: HomeAssistant, setup, aioclient_mock) -> None:
